@@ -1,0 +1,43 @@
+package browser;
+
+import io.github.bonigarcia.wdm.WebDriverManager;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.chrome.ChromeOptions;
+
+public class Browser {
+    public static WebDriver createWebDriver() {
+        String browser = System.getProperty("browser", "chrome").toLowerCase();
+
+        switch (browser) {
+            case "chrome":
+                return createChromeDriver();
+            case "yandex":
+                return createYandexDriver();
+            default:
+                throw new IllegalArgumentException("Браузер '" + browser + "' не поддерживается");
+        }
+    }
+
+    private static WebDriver createChromeDriver() {
+        WebDriverManager.chromedriver().setup(); // Убрали clearDriverCache()
+
+        ChromeOptions options = new ChromeOptions();
+        options.addArguments("--remote-allow-origins=*");
+        options.addArguments("--no-sandbox");
+        options.addArguments("--disable-dev-shm-usage");
+        return new ChromeDriver(options);
+    }
+
+    private static WebDriver createYandexDriver() {
+        WebDriverManager.chromedriver()
+                .clearDriverCache()
+                .clearResolutionCache()
+                .setup();
+
+        ChromeOptions options = new ChromeOptions();
+        options.setBinary("C:/Users/katya/AppData/Local/Yandex/YandexBrowser/Application/browser.exe");
+        options.addArguments("--remote-allow-origins=*");
+        return new ChromeDriver(options);
+    }
+}
