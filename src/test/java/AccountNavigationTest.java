@@ -9,12 +9,16 @@ import org.junit.Before;
 import org.junit.Test;
 import org.openqa.selenium.WebDriver;
 import pages.*;
-import generators.UserGenerator;
 import io.restassured.response.Response;
 
 import static org.junit.Assert.*;
 
 public class AccountNavigationTest {
+    private static final String BASE_URL = "https://stellarburgers.nomoreparties.site";
+    private static final String LOGIN_URL = BASE_URL + "/login";
+    private static final String PROFILE_URL = BASE_URL + "/account/profile";
+    private static final String MAIN_PAGE_URL = BASE_URL + "/";
+
     private WebDriver driver;
     private UserClient userClient;
     private UserData userData;
@@ -22,20 +26,25 @@ public class AccountNavigationTest {
     private MainPage mainPage;
 
     @Before
+    @Step("Подготовка тестового окружения")
     public void setUp() {
         driver = Browser.createWebDriver();
         mainPage = new MainPage(driver);
         userClient = new UserClient();
-        String email = UserGenerator.getRandomEmail();
-        String password = UserGenerator.getRandomPassword();
-        String name = UserGenerator.getRandomName();
+
+        // Создание тестового пользователя
+        String email = "testuser_" + System.currentTimeMillis() + "@example.com";
+        String password = "password_" + System.currentTimeMillis();
+        String name = "TestUser_" + System.currentTimeMillis();
         userData = new UserData(email, password, name);
+
         userClient.register(userData);
         loginUser();
-        driver.get("https://stellarburgers.nomoreparties.site/");
+        driver.get(MAIN_PAGE_URL);
     }
 
     @After
+    @Step("Очистка тестового окружения")
     public void tearDown() {
         if (driver != null) {
             driver.quit();
@@ -45,13 +54,17 @@ public class AccountNavigationTest {
         }
     }
 
+    @Step("Авторизация пользователя")
     private void loginUser() {
-        driver.get("https://stellarburgers.nomoreparties.site/login");
+        driver.get(LOGIN_URL);
         LoginPage loginPage = new LoginPage(driver);
         loginPage.setEmail(userData.getEmail());
         loginPage.setPassword(userData.getPassword());
         loginPage.clickLoginButton();
-        Response loginResponse = userClient.login(new UserCredentials(userData.getEmail(), userData.getPassword()));
+
+        // Исправлено: создаем UserCredentials через конструктор
+        UserCredentials credentials = new UserCredentials(userData.getEmail(), userData.getPassword());
+        Response loginResponse = userClient.login(credentials);
         accessToken = loginResponse.then().extract().path("accessToken");
     }
 
@@ -60,7 +73,8 @@ public class AccountNavigationTest {
     @Description("Проверка перехода в личный кабинет по клику на кнопку 'Личный кабинет'")
     public void navigateToPersonalAccountTest() {
         mainPage.clickPersonalCabinetButton();
-        assertTrue("Не произошел переход в личный кабинет", driver.getCurrentUrl().contains("/account/profile"));
+        assertTrue("Не произошел переход в личный кабинет",
+                driver.getCurrentUrl().contains(PROFILE_URL));
     }
 
     @Test
@@ -70,7 +84,8 @@ public class AccountNavigationTest {
         mainPage.clickPersonalCabinetButton();
         AccountPage accountPage = new AccountPage(driver);
         accountPage.clickConstructorButton();
-        assertEquals("https://stellarburgers.nomoreparties.site/", driver.getCurrentUrl());
+        assertEquals("Не произошел переход на главную страницу",
+                MAIN_PAGE_URL, driver.getCurrentUrl());
     }
 
     @Test
@@ -80,6 +95,7 @@ public class AccountNavigationTest {
         mainPage.clickPersonalCabinetButton();
         AccountPage accountPage = new AccountPage(driver);
         accountPage.clickLogo();
-        assertEquals("https://stellarburgers.nomoreparties.site/", driver.getCurrentUrl());
+        assertEquals("Не произошел переход на главную страницу",
+                MAIN_PAGE_URL, driver.getCurrentUrl());
     }
 }

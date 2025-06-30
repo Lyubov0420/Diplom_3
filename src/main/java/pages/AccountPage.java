@@ -1,5 +1,6 @@
 package pages;
 
+import io.qameta.allure.Step;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
@@ -19,16 +20,19 @@ public class AccountPage {
         this.wait = new WebDriverWait(driver, Duration.ofSeconds(10));
     }
 
+    @Step("Нажать кнопку 'Выход'")
     public void clickLogoutButton() {
         WebElement element = wait.until(ExpectedConditions.elementToBeClickable(logoutButton));
         element.click();
     }
 
+    @Step("Нажать кнопку 'Конструктор'")
     public void clickConstructorButton() {
         WebElement element = wait.until(ExpectedConditions.elementToBeClickable(constructorButton));
         element.click();
     }
 
+    @Step("Нажать на логотип")
     public void clickLogo() {
         WebElement element = wait.until(ExpectedConditions.elementToBeClickable(logo));
         element.click();

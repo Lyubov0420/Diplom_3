@@ -1,11 +1,14 @@
 package browser;
 
 import io.github.bonigarcia.wdm.WebDriverManager;
+import io.qameta.allure.Step;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
 
 public class Browser {
+
+    @Step("Создание веб-драйвера для браузера {browser}")
     public static WebDriver createWebDriver() {
         String browser = System.getProperty("browser", "chrome").toLowerCase();
 
@@ -19,8 +22,9 @@ public class Browser {
         }
     }
 
+    @Step("Создание драйвера для Chrome")
     private static WebDriver createChromeDriver() {
-        WebDriverManager.chromedriver().setup(); // Убрали clearDriverCache()
+        WebDriverManager.chromedriver().setup();
 
         ChromeOptions options = new ChromeOptions();
         options.addArguments("--remote-allow-origins=*");
@@ -29,6 +33,7 @@ public class Browser {
         return new ChromeDriver(options);
     }
 
+    @Step("Создание драйвера для Yandex Browser")
     private static WebDriver createYandexDriver() {
         WebDriverManager.chromedriver()
                 .clearDriverCache()
